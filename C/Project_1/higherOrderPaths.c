@@ -5,9 +5,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-//29/10/2019 en son býraktýðým dosya bu 
-//01.11.2019, 2 projeyi birleþtirdim
-//02.11.2019 first co-occurence çalýþýyor
 
 // Start of part A Master Linked List
 struct n{
@@ -147,13 +144,13 @@ node * sequentialInsert(node *r , char *value, char dirName[20],char dirCat[20])
 
 //start of second co-occurence function
 void findSecondCoOccurence(node *r){
-	node * check = r; // listeye bütün elemanlarý ekledim þimdi yapmak istediðim 1 den fazla kategoriye sahip elemanlarý listelemek
+	node * check = r; // listeye bÃ¼tÃ¼n elemanlarÃ½ ekledim Ã¾imdi yapmak istediÃ°im 1 den fazla kategoriye sahip elemanlarÃ½ listelemek
 	while(check != NULL){
 		
-		char * findcharacter = strchr(check->dataDir,','); // datadir içerisinde , iþareti var mý diye bakýyor.
+		char * findcharacter = strchr(check->dataDir,','); // datadir iÃ§erisinde , iÃ¾areti var mÃ½ diye bakÃ½yor.
 		
-		if(findcharacter) { // master linked listim oluþtu bazý kelimeler 2 farklý dosyada da olduðu için onlarýn kategorilerine 2 category yazdým
-		// þimdi onlarý bulup ayýracaðým.
+		if(findcharacter) { // master linked listim oluÃ¾tu bazÃ½ kelimeler 2 farklÃ½ dosyada da olduÃ°u iÃ§in onlarÃ½n kategorilerine 2 category yazdÃ½m
+		// Ã¾imdi onlarÃ½ bulup ayÃ½racaÃ°Ã½m.
 			char ch = ',';
 			int frequency = 1,k;
 			for(k = 0; check->dataDir[k] != '\0'; k++)
@@ -162,7 +159,7 @@ void findSecondCoOccurence(node *r){
 			           frequency++;
 			   }
   				   
-			char * catArray[frequency];// kelime içerisindeki kategorileri array liste atýyorum.
+			char * catArray[frequency];// kelime iÃ§erisindeki kategorileri array liste atÃ½yorum.
 			int i=0;
 			char tempDataDir[100];
 			strcpy(tempDataDir,check->dataDir);
@@ -175,7 +172,7 @@ void findSecondCoOccurence(node *r){
 			} 
 			
 		
-			if(frequency == 2) //frequency = linked list dataDir içerisinde birden fazla kategori yazýldý ise onun sayýsýný veriyor. 
+			if(frequency == 2) //frequency = linked list dataDir iÃ§erisinde birden fazla kategori yazÃ½ldÃ½ ise onun sayÃ½sÃ½nÃ½ veriyor. 
 			{
 				node * checkA = r;
 				while(checkA != NULL){
@@ -209,13 +206,13 @@ void findSecondCoOccurence(node *r){
 									
 										node * secondOccurence = checkA;
 										while(secondOccurence->secondO != NULL){
-											if(strcmp(secondOccurence->data,checkB->data) == 0) // eüer o iki kelime daha önce baþka bir þekilde eþleþtiler ise flag =11 olsunn
+											if(strcmp(secondOccurence->data,checkB->data) == 0) // eÃ¼er o iki kelime daha Ã¶nce baÃ¾ka bir Ã¾ekilde eÃ¾leÃ¾tiler ise flag =11 olsunn
 											{
 											 flag = 11;	
 											}
 											secondOccurence = secondOccurence->secondO;
 										}
-										if(flag == 0){ // flag 11 ise buraya girmiyor ve ekleme iþlemini yapmýyor.
+										if(flag == 0){ // flag 11 ise buraya girmiyor ve ekleme iÃ¾lemini yapmÃ½yor.
 											node * temp = (node *)malloc(sizeof(node));
 											temp->data = strdup(checkB->data);
 											temp->dataDir = strdup(checkB->dataDir);
@@ -275,7 +272,7 @@ void findSecondCoOccurence(node *r){
 													
 														node * secondOccurence = checkA;
 														while(secondOccurence->secondO != NULL){
-																if(strcmp(secondOccurence->data,checkB->data) == 0) // yine ayný iþlem, Eðer o eþleþme daha önce yapýldý ise flag =11 olsun 
+																if(strcmp(secondOccurence->data,checkB->data) == 0) // yine aynÃ½ iÃ¾lem, EÃ°er o eÃ¾leÃ¾me daha Ã¶nce yapÃ½ldÃ½ ise flag =11 olsun 
 																{
 																 flag = 11;	
 																}
@@ -449,10 +446,10 @@ void printItemsPartB(nodePtr *head, char whichPart[10]){ // for part B and Part 
 		if(strcmp(whichPart,"B") == 0) 
 			printf("Category : %s \n\n",categoryArray[j]);
 		else if(strcmp(whichPart,"C") == 0)
-			printf("Category : %s ve içindeki dosya sayýsý: %d \n\n",categoryArray[j],categoryTotalFiles[j]);
+			printf("Category : %s ve iÃ§indeki dosya sayÃ½sÃ½: %d \n\n",categoryArray[j],categoryTotalFiles[j]);
 		
 		
-		while(c != NULL) {  // tek bir tane while döngüsü var. her 2 yazdýrma iþlemi içinde
+		while(c != NULL) {  // tek bir tane while dÃ¶ngÃ¼sÃ¼ var. her 2 yazdÃ½rma iÃ¾lemi iÃ§inde
 		if(strcmp(whichPart,"B") == 0) { // for part B
 				if(strcmp(c->dataCat,categoryArray[j])==0 && sum <= 5) // first 5 items for each category
 				{
@@ -481,7 +478,7 @@ int main(){
 	setlocale(LC_ALL, "Turkish");
 	root = NULL;
 	fileListing();	
-	printItems(root); // Master Linked list first co occurencelarý veriyor
+	printItems(root); // Master Linked list first co occurencelarÃ½ veriyor
 	
 	// we are finding second cooccurence's words
 	findSecondCoOccurence(root);
@@ -489,7 +486,7 @@ int main(){
 	printItemsSecond(root);
 	
 	printf("\n \n Part B \n \n");
-	sortList(); // baþka bir linked listi kelimelerin tekrar sýrasýna göre sýralýyor.
+	sortList(); // baÃ¾ka bir linked listi kelimelerin tekrar sÃ½rasÃ½na gÃ¶re sÃ½ralÃ½yor.
 	printItemsPartB(head,"B"); 
 	
 		
@@ -516,7 +513,7 @@ fileListing(){
 			}
 		
 			while ((directory = readdir(dir)) != NULL ) {
-				if(strlen(directory->d_name) >2){ // greater than 2 because, Listelerken üstteki dosyalarý ifade eden noktalar geliyordu. 				
+				if(strlen(directory->d_name) >2){ // greater than 2 because, Listelerken Ã¼stteki dosyalarÃ½ ifade eden noktalar geliyordu. 				
 					strcpy(sentUrl,openUrl);
 					strcat(sentUrl,"/");
 					strcat(sentUrl,directory->d_name);
@@ -526,7 +523,7 @@ fileListing(){
 			}	
 			closedir(dir);  // its is closed	
 		
-			categoryTotalFiles[i] = fileSumNumber; // her kategoride ki dosya sayýsýný en üsttteki array dizisine atýyor..
+			categoryTotalFiles[i] = fileSumNumber; // her kategoride ki dosya sayÃ½sÃ½nÃ½ en Ã¼sttteki array dizisine atÃ½yor..
 		}	  
 	
 } 
@@ -541,7 +538,7 @@ fileOpen(char url[150], char dirCat[20], char dirName[]){
 	char fileString[512];
 	char *getString;
 	char uniqeFileName[150]; // to mediatize file name and file's category so there are uniqe id for every file
-	strcpy(uniqeFileName,dirCat); // c kýsmý için her dosya için uniq bir deðer oluþturdum. Ex: econ1.txt bu adda sadece 1 dosya olabilir. 
+	strcpy(uniqeFileName,dirCat); // c kÃ½smÃ½ iÃ§in her dosya iÃ§in uniq bir deÃ°er oluÃ¾turdum. Ex: econ1.txt bu adda sadece 1 dosya olabilir. 
 	dirName = strtok(dirName,".");
 	strcat(uniqeFileName,"-");
 	strcat(uniqeFileName,dirName);
