@@ -1,0 +1,154 @@
+--Question 2
+
+	Update Player  set Age = Datediff(Year,Birthdate,Getdate()) 
+	
+--Question 3 - TeamID:1 - Beşiktaş 
+	
+
+	 SELECT P.PlayerID, P.FirstName +' '+P.LastName 
+	  FROM Player P INNER JOIN PlayerTeam PT ON P.PlayerID = PT.PlayerID 
+	  WHERE PT.TeamID = 1 AND P.FirstName NOT LIKE '%nec%' AND P.Age < (SELECT AVG(AGE) FROM Player)
+
+	  
+	  
+--Question 4 
+
+		UPDATE T1
+		SET T1.City = NewData.NewValue
+		FROM Team T1
+		INNER JOIN (
+		SELECT  NG.TeamID,	NG.City+' #p'+CAST(NP.A AS varchar(5))+' #g'+CAST(NG.NG AS varchar(5)) AS NewValue
+		FROM Team T INNER JOIN (
+				SELECT  T.TeamID,Name,City,COUNT(*) AS NG 
+				FROM 
+					Goals G LEFT JOIN Match M ON G.MatchID = M.MatchID 
+					INNER JOIN Player P ON G.PlayerID = P.PlayerID INNER JOIN PlayerTeam PT ON
+					P.PlayerID = PT.PlayerID INNER JOIN Team T ON PT.TeamID =T.TeamID
+				WHERE  PT.Season ='13-14' AND G.IsOwnGoal = 0
+				GROUP BY T.TeamID,Name,City
+			) NG ON 
+			T.TeamID = NG.TeamID INNER JOIN (
+				SELECT TeamID ,COUNT(PT.PlayerID) AS A FROM PlayerTeam PT INNER JOIN Player P ON PT.PlayerID = P.PlayerID
+				WHERE PT.Season = '13-14' GROUP BY TeamID 
+				) AS NP ON 
+		T.TeamID = NP.TeamID
+		) NewData   ON T1.TeamID = NewData.TeamID
+		
+--Question 5
+
+	SELECT TOP 10 P.PlayerID, P.FirstName,P.LastName, P.Goals, TM.totalMatches-P.matches AS matchesNotScored, P.avgGoal From 
+	(SELECT PG.PlayerID,PG.FirstName,PG.LastName,PT.TeamID,COUNT(*) matches, SUM(PG.Goals) Goals, (SUM(PG.Goals)*1.0 / COUNT(*)) avgGoal From
+	(SELECT P1.PlayerID,P1.FirstName,P1.LastName,M.MatchID,COUNT(*) Goals From Match M INNER JOIN Goals G ON M.MatchID=G.MatchID INNER JOIN
+	PLAYER P1 ON P1.PlayerID = G.PlayerID GROUP BY P1.PlayerID,P1.FirstName,P1.LastName,M.MatchID ) PG INNER JOIN PlayerTeam PT ON
+	PG.PlayerID=PT.PlayerID  where PT.Season='13-14'
+	group by PG.PlayerID,PG.FirstName,PG.LastName,PT.TeamID)  P 
+	LEFT OUTER JOIN ( SELECT T.TeamID,count(*) totalMatches FROM Match M INNER JOIN Team T 
+	on M.HomeTeamID=T.TeamID or M.VisitingTeamID=T.TeamID Group by T.TeamID) TM  on P.TeamID=TM.TeamID
+	ORDER BY P.Goals DESC 
+	
+--Question 6
+
+--View Query 
+
+		SELECT
+			CASE WHEN RE.MatchID IS NULL THEN MM1.MatchID ELSE RE.MatchID END MatchID,
+			CASE WHEN RE.HomeTeamID IS NULL THEN MM1.HomeTeamID ELSE RE.HomeTeamID END HomeTeamID,
+			CASE WHEN RE.VisitingTeamID IS NULL THEN MM1.VisitingTeamID ELSE RE.VisitingTeamID END VisitingTeamID,
+			CASE WHEN RE.DateOfMatch IS NULL THEN MM1.DateOfMatch ELSE RE.DateOfMatch END DateOfMatch,
+			CASE WHEN RE.WHO IS NULL THEN 0 ELSE RE.WHO END WHO,
+			CASE WHEN RE.WHOLOST IS NULL THEN 0 ELSE RE.WHOLOST END WHOLOST,
+			CASE WHEN RE.SonucEvSahibi IS NULL THEN 0 ELSE RE.SonucEvSahibi END SonucEvSahibi,		
+			CASE WHEN RE.SonucDeplasman IS NULL THEN 0 ELSE RE.SonucDeplasman END SonucDeplasman		
+		 FROM Match MM1 LEFT JOIN (
+		SELECT RESULT.MatchID, RESULT.HomeTeamID,RESULT.VisitingTeamID, RESULT.DateOfMatch , Sum(RESULT.SonucEvSahibi+DepKendiKalesine ) AS SonucEvSahibi ,
+		Sum(RESULT.SonucDeplasman+EvKendiKalesine )AS SonucDeplasman,
+		CASE WHEN ( Sum(RESULT.SonucEvSahibi+DepKendiKalesine ) >Sum(RESULT.SonucDeplasman+EvKendiKalesine)) THEN RESULT.HomeTeamID ELSE
+			CASE WHEN (Sum(RESULT.SonucDeplasman+EvKendiKalesine )  >   Sum(RESULT.SonucEvSahibi+DepKendiKalesine )) THEN RESULT.VisitingTeamID ELSE 0 END END AS WHO,
+
+			CASE WHEN ( Sum(RESULT.SonucEvSahibi+DepKendiKalesine ) >Sum(RESULT.SonucDeplasman+EvKendiKalesine)) THEN RESULT.VisitingTeamID ELSE
+			CASE WHEN (Sum(RESULT.SonucDeplasman+EvKendiKalesine )  >   Sum(RESULT.SonucEvSahibi+DepKendiKalesine )) THEN RESULT.HomeTeamID ELSE 0 END END AS WHOLOST
+		FROM (
+		SELECT 
+		M.MatchID,
+		M.HomeTeamID,
+		M.VisitingTeamID,
+		M.DateOfMatch,
+			CASE WHEN  M.HomeTeamID = PT.TeamID AND G.IsOwnGoal= 0 THEN 1 ELSE 0 END AS SonucEvSahibi,
+			CASE WHEN  M.VisitingTeamID = PT.TeamID AND G.IsOwnGoal = 0  THEN 1 ELSE 0 END AS SonucDeplasman,
+			CASE WHEN   M.HomeTeamID = PT.TeamID AND G.IsOwnGoal = 1 THEN 1 ELSE 0 END AS EvKendiKalesine,
+			CASE WHEN   M.VisitingTeamID = PT.TeamID AND G.IsOwnGoal = 1 THEN 1 ELSE 0 END AS DepKendiKalesine
+		FROM Goals G LEFT JOIN Match M ON G.MatchID = M.MatchID LEFT JOIN Player P 
+		ON G.PlayerID = P.PlayerID LEFT JOIN PlayerTeam PT ON G.PlayerID = PT.PlayerID
+		WHERE PT.Season ='13-14' ) RESULT 
+		GROUP BY RESULT.MatchID,RESULT.HomeTeamID,RESULT.VisitingTeamID,RESULT.DateOfMatch) RE ON MM1.MatchID = RE.MatchID
+
+--Procedure
+
+Procedure [dbo].[sp_GetStandingsUpToDate]
+ @date smalldatetime 
+AS
+	IF (@date < ' 2013-08-16' or @date > '2014-07-31')
+	BEGIN 
+	    RAISERROR ('Invalid Date', 1, 1);
+	END
+	ELSE
+	BEGIN
+
+		SELECT 
+		Row_Number() Over ( ORDER BY FINAL.Pts DESC, FINAL.GD DESC, FINAL.GF DESC ) As POS,
+		* FROM (
+		SELECT 
+			TN.Name,
+			GPP.GP,
+			WW.W, 
+			TIESS.TIES AS T,
+			LL.L,
+			GFT.GF,
+			GAA.Ga,
+			(GFT.GF- GAA.Ga) AS GD,
+			((WW.W * 3 ) + 	TIESS.TIES *1 ) AS Pts
+			FROM Team TN LEFT JOIN (
+				SELECT WHO,COUNT(*) AS W FROM Results Where DateOfMatch < @date GROUP BY WHO
+			) AS WW  ON TN.TeamID = WW.WHO LEFT JOIN (	
+				SELECT TIE.TeamID, Sum(TIE.RR1+TIE.RR2) AS TIES FROM (
+			SELECT T.TeamID,  CASE WHEN R1.RR1 IS NULL THEN 0 ELSE R1.RR1 END AS RR1,
+			CASE WHEN R2.RR2 IS NULL THEN 0 ELSE R2.RR2 END AS RR2
+			FROM TEAM T LEFT JOIN (
+
+				SELECT R.HomeTeamID AS TEAMID, COUNT(*) AS RR1 FROM Results R WHERE R.WHO = 0 AND R.DateOfMatch < '2014-01-01' GROUP BY R.HomeTeamID
+			
+			) R1 ON T.TeamID = R1.TeamID LEFT JOIN (
+
+				SELECT R.VisitingTeamID AS TEAMID,COUNT(*) AS RR2 FROM Results R WHERE R.WHO = 0 AND  R.DateOfMatch <  '2014-01-01'  GROUP BY R.VisitingTeamID
+			
+			) R2 ON T.TeamID=R2.TEAMID ) AS TIE
+			GROUP BY TIE.TeamID )AS TIESS ON TN.TeamID = TIESS.TeamID
+			
+			LEFT JOIN (
+				SELECT WHOLOST,COUNT(*) AS L FROM Results R WHERE  R.DateOfMatch < @date GROUP BY WHOLOST ) LL ON TN.TeamID = LL.WHOLOST LEFT JOIN (
+					SELECT T.TeamID,COUNT(*) AS GP FROM  Match M INNER JOIN TEAM T ON M.HomeTeamID = T.TeamID OR M.VisitingTeamID = T.TeamID WHERE M.DateOfMatch < @date
+					GROUP BY T.TeamID 
+			) GPP ON TN.TeamID = GPP.TeamID LEFT JOIN (
+
+			SELECT T123.TeamID,Sum(A1.SS+A2.SS) AS GF FROM Team T123 INNER JOIN  (
+				SELECT RR.HomeTeamID AS ID,Sum(RR.SonucEvSahibi) AS SS FROM Results RR WHERE  RR.DateOfMatch < @date GROUP BY RR.HomeTeamID ) AS A1 ON T123.TeamID = A1.ID INNER JOIN 
+				(
+				SELECT RR1.VisitingTeamID AS ID ,Sum(RR1.SonucDeplasman) AS SS FROM Results RR1 WHERE RR1.DateOfMatch < @date GROUP BY RR1.VisitingTeamID
+				) AS A2 ON T123.TeamID = A2.ID
+				GROUP BY  T123.TeamID ) GFT ON TN.TeamID = GFT.TeamID LEFT JOIN (
+
+						SELECT T123.TeamID,Sum(A1.SS+A2.SS) AS Ga FROM Team T123 INNER JOIN  (
+				SELECT RR.HomeTeamID AS ID,Sum(RR.SonucDeplasman) AS SS FROM Results RR  WHERE RR.DateOfMatch < @date GROUP BY RR.HomeTeamID ) AS A1 ON T123.TeamID = A1.ID INNER JOIN 
+				(
+				SELECT RR1.VisitingTeamID AS ID ,Sum(RR1.SonucEvSahibi) AS SS FROM Results RR1 WHERE RR1.DateOfMatch < @date GROUP BY RR1.VisitingTeamID
+				) AS A2 ON T123.TeamID = A2.ID
+				GROUP BY  T123.TeamID 
+				) GAA ON TN.TeamID = GAA.TeamID 
+				) FINAL
+			ORDER BY FINAL.Pts DESC, FINAL.GD DESC, FINAL.GF DESC
+
+END
+
+	
+
+	
