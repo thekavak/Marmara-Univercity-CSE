@@ -1,1 +1,1 @@
-# CSE at Marmara Univercity 
+# Marmara Univercity CSE
