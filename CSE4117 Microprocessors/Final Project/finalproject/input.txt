@@ -1,0 +1,80 @@
+.data
+	v: 0
+	h: 0
+.code	
+reset	ldi 1 v
+	ldi 2 0xf0
+	st 1 2
+	ldi 1 0x0ff
+	st 1 2
+	ldi 1 h
+	ldi 2 0x140
+	st 1 2
+	ldi 1 0x0fe
+	st 1 2
+loop1   ldi 1 0x0FC
+        ld 1 1
+	ldi 2 0x1
+        and 3 2 1
+        jz loop1
+	ldi 4 0x0fd
+	ld 4 4
+	ldi 5 0x1d
+	xor 1 4 5
+	jz up
+	ldi 5 0x1b
+	xor 1 4 5
+	jz down
+	ldi 5 0x23
+	xor 1 4 5
+	jz right
+	ldi 5 0x1C
+	xor 1 4 5
+	jz left
+	jmp loop1
+up 	ldi 2 v
+	ld 2 2
+	ldi 3 0x4
+	sub 2 2 3
+	jz reset
+	ldi 6 v
+	st  6 2
+	ldi 6 0x0ff
+	st 6 2
+	jmp loop1
+down	ldi 2 v
+	ld 2 2
+	ldi 3 0x4
+	add 2 2 3
+	ldi 7 0x1E0
+	ld 7 7
+	sub 7 7 2
+	jz reset
+	ldi 6 v
+	st  6 2
+	ldi 6 0x0ff
+	st 6 2
+	jmp loop1
+right	ldi 2 h
+	ld 2 2
+	ldi 3 0x4
+	add 2 2 3
+	ldi 7 0x280
+	ld 7 7
+	sub 7 7 2
+	jz reset
+	ldi 6 h
+	st  6 2
+	ldi 6 0x0fe
+	st 6 2
+	jmp loop1
+left	ldi 2 h
+	ld 2 2
+	ldi 3 0x4
+	sub 2 2 3
+	jz reset
+	ldi 6 h
+	st  6 2
+	ldi 6 0x0fe
+	st 6 2
+	jmp loop1

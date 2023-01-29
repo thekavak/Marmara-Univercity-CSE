@@ -1,0 +1,19 @@
+.data
+	sum: 0
+.code
+loop1   ldi 1 0xFF1
+        ld 1 1
+        and 3 1 1
+        jz loop2
+	ldi 4 0xFF0
+	ld 4 4
+	add 0 sum sum
+	add 0 0 4
+
+	st 0 0
+loop2	ldi 1 0xFF3
+	ld 1 1
+	and 3 1 1
+	jz loop1
+	ldi 4 OxFF2
+	 

@@ -1,0 +1,67 @@
+module finalproject(	
+	input clk, 
+	input ps2c, 
+	input ps2d,
+	output logic [3:0] grounds,
+	output logic [6:0] display, 
+	input pushbutton);
+	
+	
+logic [15:0] data_all;
+logic [3:0] keyout;
+logic ack;
+
+//memory map is defined here
+
+localparam BEGINMEM=12'h000,
+	ENDMEM=12'h1ff,
+	KEYBOARD=12'h900,
+	SEVENSEG=12'hb00;
+// memory chip
+logic [15:0] memory [0:127];
+
+
+// cpu's input-output pins
+logic [15:0] data_out;
+logic [15:0] data_in;
+logic [11:0] address;
+logic memwt;
+
+sevensegment ss1 (//to be added);
+keyboard kb1(//to be added);
+bird br1 (//to be added);
+
+//multiplexer for cpu input
+always_comb
+	if ( (BEGINMEM<=address) && (address<=ENDMEM) )
+	begin
+		data_in=memory[address];
+	end
+	else if (address==KEYBOARD+1)
+	begin
+	//to be added
+	end
+	else if (address==KEYBOARD)
+	begin
+	//to be added
+
+	end
+	else begin
+		data_in=16'hf345; //any number
+	end
+	
+	
+//multiplexer for cpu output
+always_ff @(posedge clk) //data output port of the cpu
+	if (memwt)
+		if ( (BEGINMEM<=address) && (address<=ENDMEM) )
+			memory[address]<=data_out;
+
+	else if ( SEVENSEG==address)
+		data_all<=data_out;
+
+initial
+	begin
+		$readmemh("ram.dat", memory);
+	end
+endmodule
